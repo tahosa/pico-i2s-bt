@@ -9,6 +9,8 @@ size_t const WORD = sizeof(int16_t);
 
 void cbuf_reset(cbuf_t *cbuf);
 cbuf_t *cbuf_init(int16_t *buf, size_t size);
+size_t cbuf_size(cbuf_t *cbuf);
+bool cbuf_full(cbuf_t *cbuf);
 void cbuf_free(cbuf_t *cbuf);
 bool cbuf_empty(cbuf_t *cbuf);
 size_t cbuf_write(cbuf_t *cbuf, int16_t *elem, size_t count);

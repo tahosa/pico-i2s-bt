@@ -1,7 +1,7 @@
 #include <BluetoothAudio.h>
 #include <I2S.h>
 
-#include "cbuf.hpp"
+#include "src/cbuf.hpp"
 
 I2S i2s(INPUT);
 A2DPSource a2dp;
@@ -70,8 +70,16 @@ void setup1() {
   Serial.printf("Starting, press BOOTSEL to pair to first found speaker\n");
 
   int16_t out[128];
-  cbuf_read(cbuf, out, 128);
-  a2dp.write((const uint8_t *)out, sizeof(out));
+  size_t samples;
+
+  for (;;) {
+    // We don't want to over-fill the BT buffer, so we need to check how many samples can be written.
+    samples = min(a2dp.availableForWrite(), 128);
+
+    // If the shared buffer has fewer samples than we want to read, it will return how many it has
+    samples = cbuf_read(cbuf, out, samples);
+    a2dp.write((const uint8_t *)out, samples); // This might need to be samples * sizeof(int16_t)
+  }
 }
 
 void loop1() {
