@@ -37,11 +37,6 @@ void connectCB(void *param, bool connected) {
   }
 }
 
-void fillPCM() {
-
-
-}
-
 void setup() {
   // Setup for I2S intpu
   Serial.begin(115200);
