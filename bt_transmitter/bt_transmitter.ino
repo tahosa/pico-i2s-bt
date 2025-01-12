@@ -1,10 +1,12 @@
 #include <BluetoothAudio.h>
 #include <I2S.h>
+#include <math.h>
 
 I2S i2s(INPUT);
 A2DPSource a2dp;
 
 volatile bool paused = false;
+const uint sampleRate = 44100;
 
 void avrcpCB(void *param, avrcp_operation_id_t op, int pressed) {
   (void) param;
@@ -43,12 +45,13 @@ void setup() {
   i2s.setDATA(0);
   i2s.setBCLK(1); // Note: LRCLK = BCLK + 1
   i2s.setBitsPerSample(16);
-  i2s.setFrequency(11025); // Set freq to 11.025kHz for testing
-  i2s.begin();
+  i2s.begin(sampleRate);
 
+  a2dp.setName("PicoW Zune");
   a2dp.onAVRCP(avrcpCB);
   a2dp.onVolume(volumeCB);
   a2dp.onConnect(connectCB);
+  a2dp.setFrequency(sampleRate);
   a2dp.begin();
 
   Serial.printf("Starting, press BOOTSEL to pair to first found speaker\n");
@@ -56,19 +59,13 @@ void setup() {
 }
 
 int16_t temp[2];
-uint32_t count = 0;
 
 void loop() {
   i2s.read16(temp, temp + 1);
+
   if ((size_t)a2dp.availableForWrite() > sizeof(temp)) {
     a2dp.write((const uint8_t *)temp, sizeof(temp));
   }
-  #ifdef DEBUG
-  else {
-    Serial.printf("dropping sample %d (%d, %d)\n", count, temp[0], temp[1]);
-  }
-  #endif
-  count++;
 
   if (BOOTSEL) {
     digitalWrite(LED_BUILTIN, 1);
