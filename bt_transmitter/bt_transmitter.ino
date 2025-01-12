@@ -44,7 +44,9 @@ void setup() {
   // Set up I2S input
   i2s.setDATA(0);
   i2s.setBCLK(1); // Note: LRCLK = BCLK + 1
+  // i2s.setMCLK(3); // Set MCLK - Optional - unclear if it works with I2S as input
   i2s.setBitsPerSample(16);
+  i2s.setSysClk(sampleRate);
   i2s.begin(sampleRate);
 
   a2dp.setName("PicoW Zune");
